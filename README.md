@@ -2,7 +2,6 @@
 
 ## Example
 ![frog.png](example/frog.jpg)
-![apple.png](example/apple.jpg)
 ```yaml
 imagene frog.jpg resize:500,0 append:apple.jpg result.png
 ```
