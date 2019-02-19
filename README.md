@@ -1,8 +1,8 @@
 ### Imagene - A General Purpose Image Manipulation Tool
 
 ## Example
-![frog.png](example/frog.jpg) 
-![apple.png](example/apple.jpg)
+![frog.png](example/frog.jpg | width=200) 
+![apple.png](example/apple.jpg | width=200)
 ```yaml
 imagene frog.jpg resize:500,0 append:apple.jpg result.png
 ```
