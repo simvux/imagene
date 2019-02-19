@@ -1,4 +1,4 @@
-### Imagene - A General Purpose Image Manipulation Tool
+# Imagene - A General Purpose Image Manipulation Tool
 
 ## Example
 ![frog.png](example/frog.jpg)
