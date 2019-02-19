@@ -1,0 +1,6 @@
+Notes:
+    - I can use "std::image::copy_from" to copy one image onto another, so i can scale image2 to match height of image1, expand image1 by the width of image2 and then copy image2 with the offset of image1's width
+
+
+
+imagene infile.png brightness:20 crop:50,20 combine:x.png (outfile.png) 
