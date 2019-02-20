@@ -34,13 +34,6 @@ fn main() {
                     .map_err(|e| println!("{}: {}", &filename, e))
                     .expect("Aborting due to errors while opening image");
 
-                /* Multithreadding || Just wait for the new async/await system
-                 * If i take the percentual difference of height and width
-                 * i can use that offset when looking at the numbural difference of both images in
-                 * height, and multiply that by the percentual offset to precalculate the total
-                 * width, using that data i can generate the new image with ::new_rgba8 on another
-                 * thread while current ones are being rescaled
-                 */
                 let shrink_flag = match settings.flags.get(&Flag::Shrink) {
                     Some(f) => *f,
                     None => false,

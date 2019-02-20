@@ -104,11 +104,12 @@ Examples:
                 match arg.as_ref() {
                     "shrink" => {
                         settings.flags.insert(Flag::Shrink, true);
-                        true
+                    }
+                    "vertical" => {
+                        settings.flags.insert(Flag::Vertical, true);
                     }
                     &_ => {
                         println!("Unrecognized argument \"{}\"\n{}", arg, err);
-                        false
                     }
                 };
             }

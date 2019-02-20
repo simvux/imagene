@@ -7,4 +7,5 @@ pub enum Action {
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub enum Flag {
     Shrink,
+    Vertical,
 }
