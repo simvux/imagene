@@ -49,25 +49,25 @@ fn main() {
 
                 let mut image_to_append = images.get_mut(&filename).unwrap().recv().unwrap();
 
-                let shrink_flag = match settings.flags.get(&Flag::Shrink) {
+                if match settings.flags.get(&Flag::Shrink) {
                     Some(f) => *f,
                     None => false,
-                };
-                let mut a_to_b;
-                if image_to_append.height() > image.height() {
-                    a_to_b = true;
-                } else {
-                    a_to_b = false;
                 }
-                if shrink_flag {
-                    a_to_b = !a_to_b
-                }
-                if a_to_b {
-                    image = image.resize(100000000, image_to_append.height(), Nearest);
+                {
+                    if image_to_append.height() > image.height() {
+                        image = image.resize(100000000, image_to_append.height(), Nearest);
+                    } else {
+                        image_to_append =
+                            image_to_append.resize(100000000, image.height(), Nearest);
+                    }
                 } else {
-                    image_to_append = image_to_append.resize(100000000, image.height(), Nearest);
-                };
-
+                    if image_to_append.height() > image.height() {
+                        image_to_append =
+                            image_to_append.resize(100000000, image.height(), Nearest);
+                    } else {
+                        image = image.resize(100000000, image_to_append.height(), Nearest);
+                    }
+                }
                 let mut parent = image::DynamicImage::new_rgba8(
                     image.width() + image_to_append.width(),
                     image.height(),
@@ -79,5 +79,6 @@ fn main() {
         };
     }
 
-    image.save(io.1).unwrap();
+    image.save(&io.1).unwrap();
+    println!("Wrote {}", io.1);
 }
