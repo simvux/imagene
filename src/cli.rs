@@ -11,7 +11,7 @@ pub struct Settings {
     pub flags: HashMap<Flag, bool>,
 }
 
-pub fn parse() -> ((String, String), Settings) {
+pub fn parse() -> ((String, String), Settings, Vec<String>) {
 
     let mut settings = Settings {
         actions: Vec::new(),
@@ -59,6 +59,9 @@ Examples:
     let outfile = &args[args.len() - 1];
     println!("Using infile {} and outfile {}", infile, outfile);
 
+    let mut images: Vec<String> = Vec::new();
+    images.push(infile.to_owned());
+
     for arg in &args[2..args.len() - 1] {
         let step = split_kv(arg);
 
@@ -91,7 +94,10 @@ Examples:
                             ),
                         )
                     }
-                    "append" => Append(v.to_owned()),
+                    "append" => {
+                        images.push(v.to_owned());
+                        Append(v.to_owned())
+                    }
                     &_ => {
                         println!("{}: action not found", k);
                         std::process::exit(1)
@@ -116,7 +122,7 @@ Examples:
         }
     }
 
-    ((infile.to_owned(), outfile.to_owned()), settings)
+    ((infile.to_owned(), outfile.to_owned()), settings, images)
 }
 
 fn split_kv(s: &str) -> Result<(&str, &str), String> {
