@@ -18,15 +18,17 @@ fn main() {
 
         let (s, r) = mpsc::channel();
         let i_n = image_name.clone();
-        std::thread::spawn(move|| {
-            s.send(image::open(&i_n)
-                .map_err(|e| {
-                    println!("{}", e);
-                })
-                .expect("Aborting because one or more errors while loading image")).unwrap();
+        std::thread::spawn(move || {
+            s.send(
+                image::open(&i_n)
+                    .map_err(|e| {
+                        println!("{}", e);
+                    })
+                    .expect("Aborting because one or more errors while loading image"),
+            ).unwrap();
         });
         images.insert(image_name, r);
-    };
+    }
 
     let mut image = images.get_mut(&io.0).unwrap().recv().unwrap();
     for action in settings.actions {
@@ -44,12 +46,6 @@ fn main() {
                 image = image.resize_exact(w, h, Nearest)
             }
             Append(filename) => {
-
-                /* This should be made at cli.rs and images.get(filename).recv().unwrap() here instead
-                let mut image_to_append = image::open(&filename)
-                    .map_err(|e| println!("{}: {}", &filename, e))
-                    .expect("Aborting due to errors while opening image");
-                */
 
                 let mut image_to_append = images.get_mut(&filename).unwrap().recv().unwrap();
 
