@@ -5,6 +5,6 @@ authors = ["Simon <voidcrystal200@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-image = '*'
-clap = '*'
-colored = '*'
+image = "*"
+clap = "*"
+colored = "*"
