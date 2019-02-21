@@ -31,6 +31,7 @@ Available Actions:
     flip:{o}v/h{c}               {comment} Flip image v for vertically or h for horizontally
     rotate:{o}left/right/down{c} {comment} Rotate an image by 90,180,270 degrees
     resize:{o}int,int{c}         {comment} Resize an image, leave one of the ints empty to auto scale it
+    crop:{o}int,int,int,int{c}   {comment} Crop an image (x,y,width,height)
     append:{o}string{c}          {comment} Add another image next to source image
 
 Available Flags:
@@ -62,7 +63,9 @@ Examples:
 
     let infile = &args[1];
     let outfile = &args[args.len() - 1];
-    println!("Using infile {} and outfile {}", infile, outfile);
+    if outfile != "stdout" {
+        println!("Using infile {} and outfile {}", infile, outfile);
+    };
 
     let mut images: Vec<String> = Vec::new();
     images.push(infile.to_owned());
@@ -89,6 +92,24 @@ Examples:
                             .parse::<f32>()
                             .expect(&format!("{}: Invalid value for {}", k, v)),
                     ),
+                    "crop" => {
+                        let crop_arguments: Vec<&str> = v.split(",").collect();
+                        if crop_arguments.len() != 4 {
+                            panic!("Wrong amount of arguments for crop, i need \"x,y,w,h\"")
+                        }
+                        let convert = |s: &str| {
+                            s.to_owned().parse::<u32>().expect(&format! {
+                                "{}: Invalid value for {}",
+                                s, k
+                            })
+                        };
+                        Crop(
+                            convert(crop_arguments[0]),
+                            convert(crop_arguments[1]),
+                            convert(crop_arguments[2]),
+                            convert(crop_arguments[3]),
+                        )
+                    }
                     "rotate" => Rotate(match v {
                         "down" => Direction::Down,
                         "left" => Direction::Left,
@@ -105,21 +126,14 @@ Examples:
                         if unsharp_arguments.len() != 2 {
                             panic!("Wrong amount of arguments for unsharpen")
                         };
-                        Unsharpen(
-                            unsharp_arguments[0]
-                                .to_owned()
+                        let convert = |s: &str| {
+                            s.to_owned()
                                 .parse::<f32>()
-                                .expect(&format!(
-                                    "{}: Invalid value for {}",
-                                    unsharp_arguments[0], v,
-                                )),
-                            unsharp_arguments[1]
-                                .to_owned()
-                                .parse::<i32>()
-                                .expect(&format!(
-                                    "{}: Invalid value for {}",
-                                    unsharp_arguments[1], v,
-                                )),
+                                .expect(&format!("{}: Invalid value for {}", s, k,))
+                        };
+                        Unsharpen(
+                            convert(unsharp_arguments[0]),
+                            convert(unsharp_arguments[1]) as i32,
                         )
                     }
                     "resize" => {
