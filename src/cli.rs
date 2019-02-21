@@ -24,11 +24,13 @@ pub fn parse() -> ((String, String), Settings, Vec<String>) {
     {imagene} {o}infile{c} ...{o}action{c}:{o}value{c}... ...{o}flag{c}... {o}outfile{c}
 
 Available Actions:
-    brightness:{o}int{c}   {comment} Increase brightness by percent
-    contrast:{o}int{c}     {comment} Increase contrast by percent
-    blur:{o}float{c}       {comment} Add gaussian blur by sigma (recommended 1-20)
-    resize:{o}int,int{c}   {comment} Resize an image, leave one of the ints empty to auto scale it
-    append:{o}string{c}    {comment} Add another image next to source image
+    brightness:{o}int{c}     {comment} Increase brightness by percent
+    contrast:{o}int{c}       {comment} Increase contrast by percent
+    blur:{o}float{c}         {comment} Add gaussian blur by sigma (recommended 1-20)
+    unsharpen:{o}float,int{c}{comment} Add unsharpen mask with float being sigma and int being threshold
+    flip:{o}v{c}/{o}h{c}         {comment} Flip image v for vertically or h for horizontally
+    resize:{o}int,int{c}     {comment} Resize an image, leave one of the ints empty to auto scale it
+    append:{o}string{c}      {comment} Add another image next to source image
 
 Available Flags:
     shrink            {comment} Appended images will inherit the height of the shortest
