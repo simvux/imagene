@@ -72,12 +72,7 @@ fn main() {
                     if !extra_images.contains_key(&filename) {
                         extra_images.insert(
                             filename.clone(),
-                            images
-                                .get_mut(&filename)
-                                .unwrap()
-                                .recv()
-                                .map_err(|e| println!("{}", e))
-                                .unwrap(),
+                            images.get_mut(&filename).unwrap().recv().unwrap(),
                         );
                     }
                     image_to_append = extra_images.get_mut(&filename).unwrap().clone();
@@ -111,18 +106,25 @@ fn main() {
                         )
                     }
                 };
-                let mut parent = image::DynamicImage::new_rgba8(
-                    image.width() + image_to_append.width(),
-                    image.height(),
-                );
-                if original_resized {
+                image = if original_resized {
+                    println!("if");
+                    let mut parent = image::DynamicImage::new_rgba8(
+                        resized_image.width() + image_to_append.width(),
+                        image.height(),
+                    );
                     parent.copy_from(&resized_image, 0, 0);
-                    parent.copy_from(&image_to_append, image.width(), 0);
+                    parent.copy_from(&image_to_append, resized_image.width(), 0);
+                    parent
                 } else {
+                    println!("else");
+                    let mut parent = image::DynamicImage::new_rgba8(
+                        image.width() + resized_image.width(),
+                        image.height(),
+                    );
                     parent.copy_from(&image, 0, 0);
                     parent.copy_from(&resized_image, image.width(), 0);
+                    parent
                 }
-                image = parent;
             }
         };
     }
