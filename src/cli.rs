@@ -1,10 +1,10 @@
+use crate::action::Action;
 use crate::action::Action::*;
 use crate::action::Flag;
-use crate::action::Action;
 use std::collections::HashMap;
 
-use std::env;
 use colored::*;
+use std::env;
 
 pub struct Settings {
     pub actions: Vec<Action>,
@@ -12,7 +12,6 @@ pub struct Settings {
 }
 
 pub fn parse() -> ((String, String), Settings, Vec<String>) {
-
     let mut settings = Settings {
         actions: Vec::new(),
         flags: HashMap::new(),
@@ -69,42 +68,66 @@ Examples:
         let step = split_kv(arg);
 
         match step {
-
             Ok((k, v)) => {
                 // Key:Value based argument
                 settings.actions.push(match k {
-                    "contrast" => Contrast(v.to_owned().parse::<f32>().expect(&format!(
-                        "{}: Invalid value for {}",
-                        k,
-                        v
-                    ))),
-                    "brightness" => Brightness(v.to_owned().parse::<i32>().expect(&format!(
-                        "{}: Invalid value for {}",
-                        k,
-                        v
-                    ))),
-                    "blur" => Blur(v.to_owned().parse::<f32>().expect(&format!(
-                        "{}: Invalid value for {}",
-                        k,
-                        v
-                    ))),
+                    "contrast" => Contrast(
+                        v.to_owned()
+                            .parse::<f32>()
+                            .expect(&format!("{}: Invalid value for {}", k, v)),
+                    ),
+                    "brightness" => Brightness(
+                        v.to_owned()
+                            .parse::<i32>()
+                            .expect(&format!("{}: Invalid value for {}", k, v)),
+                    ),
+                    "blur" => Blur(
+                        v.to_owned()
+                            .parse::<f32>()
+                            .expect(&format!("{}: Invalid value for {}", k, v)),
+                    ),
+                    "unsharpen" => {
+                        let unsharp_arguments: Vec<&str> = v.split(",").collect();
+                        if unsharp_arguments.len() != 2 {
+                            panic!("Wrong amount of arguments for unsharpen")
+                        };
+                        Unsharpen(
+                            unsharp_arguments[0]
+                                .to_owned()
+                                .parse::<f32>()
+                                .expect(&format!(
+                                    "{}: Invalid value for {}",
+                                    unsharp_arguments[0], v,
+                                )),
+                            unsharp_arguments[1]
+                                .to_owned()
+                                .parse::<i32>()
+                                .expect(&format!(
+                                    "{}: Invalid value for {}",
+                                    unsharp_arguments[1], v,
+                                )),
+                        )
+                    }
                     "resize" => {
                         let resize_arguments: Vec<&str> = v.split(",").collect();
+                        if resize_arguments.len() != 2 {
+                            panic!("Wrong amount of arguments for resize")
+                        };
                         Scale(
-                            resize_arguments[0].to_owned().parse::<u32>().expect(
-                                &format!(
-                                "{}: Invalid value for {}",
-                                resize_arguments[0],
-                                v,
-                        ),
-                            ),
-                            resize_arguments[1].to_owned().parse::<u32>().expect(
-                                &format!(
-                                "{}: Invalid value for {}",
-                                resize_arguments[1],
-                                v,
-                        ),
-                            ),
+                            resize_arguments[0]
+                                .to_owned()
+                                .parse::<u32>()
+                                .expect(&format!(
+                                    "{}: Invalid value for {}",
+                                    resize_arguments[0], v,
+                                )),
+                            resize_arguments[1]
+                                .to_owned()
+                                .parse::<u32>()
+                                .expect(&format!(
+                                    "{}: Invalid value for {}",
+                                    resize_arguments[1], v,
+                                )),
                         )
                     }
                     "append" => {
@@ -116,7 +139,6 @@ Examples:
                         std::process::exit(1)
                     }
                 });
-
             }
             Err(err) => {
                 // Flag based argument

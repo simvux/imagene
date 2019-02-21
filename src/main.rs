@@ -1,7 +1,7 @@
 extern crate image;
 
-mod cli;
 mod action;
+mod cli;
 use action::Action::*;
 use action::Flag;
 use image::*;
@@ -15,7 +15,6 @@ fn main() {
     // or something
     let mut images: HashMap<String, mpsc::Receiver<DynamicImage>> = HashMap::new();
     for image_name in image_names {
-
         let (s, r) = mpsc::channel();
         let i_n = image_name.clone();
         std::thread::spawn(move || {
@@ -25,7 +24,8 @@ fn main() {
                         println!("{}", e);
                     })
                     .expect("Aborting because one or more errors while loading image"),
-            ).unwrap();
+            )
+            .unwrap();
         });
         images.insert(image_name, r);
     }
@@ -36,6 +36,7 @@ fn main() {
             Contrast(c) => image = image.adjust_contrast(c),
             Brightness(b) => image = image.brighten(b),
             Blur(b) => image = image.blur(b),
+            Unsharpen(sigma, threshold) => image = image.unsharpen(sigma, threshold),
             Scale(w, h) => {
                 if w == 0 {
                     image = image.resize(100000000, h, Nearest);
@@ -48,14 +49,12 @@ fn main() {
                 image = image.resize_exact(w, h, Nearest)
             }
             Append(filename) => {
-
                 let mut image_to_append = images.get_mut(&filename).unwrap().recv().unwrap();
 
                 if match settings.flags.get(&Flag::Shrink) {
                     Some(f) => *f,
                     None => false,
-                }
-                {
+                } {
                     if image_to_append.height() > image.height() {
                         image = image.resize(100000000, image_to_append.height(), Nearest);
                     } else {
