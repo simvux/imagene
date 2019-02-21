@@ -85,24 +85,24 @@ fn main() {
                     if image_to_append.height() > image.height() {
                         (
                             true,
-                            image.resize(100000000, image_to_append.height(), Nearest),
+                            image.resize(std::u32::MAX, image_to_append.height(), Nearest),
                         )
                     } else {
                         (
                             false,
-                            image_to_append.resize(100000000, image.height(), Nearest),
+                            image_to_append.resize(std::u32::MAX, image.height(), Nearest),
                         )
                     }
                 } else {
                     if image_to_append.height() > image.height() {
                         (
                             false,
-                            image_to_append.resize(100000000, image.height(), Nearest),
+                            image_to_append.resize(std::u32::MAX, image.height(), Nearest),
                         )
                     } else {
                         (
                             true,
-                            image.resize(100000000, image_to_append.height(), Nearest),
+                            image.resize(std::u32::MAX, image_to_append.height(), Nearest),
                         )
                     }
                 };
