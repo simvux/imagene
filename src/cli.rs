@@ -80,6 +80,11 @@ Examples:
                         k,
                         v
                     ))),
+                    "blur" => Blur(v.to_owned().parse::<f32>().expect(&format!(
+                        "{}: Invalid value for {}",
+                        k,
+                        v
+                    ))),
                     "resize" => {
                         let resize_arguments: Vec<&str> = v.split(",").collect();
                         Scale(

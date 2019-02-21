@@ -35,6 +35,7 @@ fn main() {
         match action {
             Contrast(c) => image = image.adjust_contrast(c),
             Brightness(b) => image = image.brighten(b),
+            Blur(b) => image = image.blur(b),
             Scale(w, h) => {
                 if w == 0 {
                     image = image.resize(100000000, h, Nearest);

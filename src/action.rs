@@ -1,4 +1,5 @@
 pub enum Action {
+    Blur(f32),
     Brightness(i32),
     Contrast(f32),
     Scale(u32, u32),
