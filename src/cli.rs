@@ -25,16 +25,19 @@ pub fn parse() -> ((String, String), Settings, Vec<String>) {
     {imagene} {o}infile{c} ...{o}action{c}:{o}value{c}... ...{o}flag{c}... {o}outfile{c}
 
 Available Actions:
-    contrast:{o}float{c}  {comment} Increase contrast
-    resize:{o}int,int{c}  {comment} Resize an image, leave one of the ints empty to auto scale it
-    append:{o}string{c}   {comment} Add another image next to source image
+    brightness:{o}int{c}   {comment} Increase brightness by percent
+    contrast:{o}int{c}     {comment} Increase contrast by percent
+    blur:{o}float{c}       {comment} Add gaussian blur by sigma (recommended 1-20)
+    resize:{o}int,int{c}   {comment} Resize an image, leave one of the ints empty to auto scale it
+    append:{o}string{c}    {comment} Add another image next to source image
 
 Available Flags:
     shrink            {comment} Appended images will inherit the height of the shortest
+    vertical          {comment} (NOT IMPLEMENTED) Appended images will append vertically
 
 Examples:
-     {comment} Increases the contrast of the original image and adds an extra image next to it
-     {imagene} {infile} contrast:2 append:extra_image.png {outfile}
+     {comment} Increases the contrast of the original image by 20% and adds an extra image next to it
+     {imagene} {infile} contrast:20 append:extra_image.png {outfile}
 
      {comment} Adds an extra image next to in_file.png and new image inherit height of the smallest
      {imagene} {infile} {shrink} append:extra_image.png {outfile}
