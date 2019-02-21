@@ -1,6 +1,6 @@
 use crate::action::Action;
 use crate::action::Action::*;
-use crate::action::{Flag, Orientation};
+use crate::action::{Direction, Flag, Orientation};
 use std::collections::HashMap;
 
 use colored::*;
@@ -21,16 +21,17 @@ pub fn parse() -> ((String, String), Settings, Vec<String>) {
     if &args[1] == "--help" || &args[1] == "-h" || &args[1] == "/h" || &args[1] == "help" {
         println!(
             "Syntax:
-    {imagene} {o}infile{c} ...{o}action{c}:{o}value{c}... ...{o}flag{c}... {o}outfile{c}
+    {imagene} {o}infile{c} ...{o}flag{c}... ...{o}action{c}:{o}value{c}... {o}outfile{c}
 
 Available Actions:
-    brightness:{o}int{c}     {comment} Increase brightness by percent
-    contrast:{o}int{c}       {comment} Increase contrast by percent
-    blur:{o}float{c}         {comment} Add gaussian blur by sigma (recommended 1-20)
-    unsharpen:{o}float,int{c}{comment} Add unsharpen mask with float being sigma and int being threshold
-    flip:{o}v{c}/{o}h{c}         {comment} Flip image v for vertically or h for horizontally
-    resize:{o}int,int{c}     {comment} Resize an image, leave one of the ints empty to auto scale it
-    append:{o}string{c}      {comment} Add another image next to source image
+    brightness:{o}int{c}         {comment} Increase brightness by percent
+    contrast:{o}int{c}           {comment} Increase contrast by percent
+    blur:{o}float{c}             {comment} Add gaussian blur by sigma (recommended 1-20)
+    unsharpen:{o}float,int{c}    {comment} Add unsharpen mask with float being sigma and int being threshold
+    flip:{o}v/h{c}               {comment} Flip image v for vertically or h for horizontally
+    rotate:{o}left/right/down{c} {comment} Rotate an image by 90,180,270 degrees
+    resize:{o}int,int{c}         {comment} Resize an image, leave one of the ints empty to auto scale it
+    append:{o}string{c}          {comment} Add another image next to source image
 
 Available Flags:
     shrink            {comment} Appended images will inherit the height of the shortest
@@ -52,7 +53,7 @@ Examples:
             shrink = "shrink".purple(),
             infile = "in_file.png".blue(),
             outfile = "out_file.png".blue(),
-            comment = "//".blue(),
+            comment = "->".blue(),
             o = "<".green(),
             c = ">".green()
         );
@@ -88,12 +89,16 @@ Examples:
                             .parse::<f32>()
                             .expect(&format!("{}: Invalid value for {}", k, v)),
                     ),
+                    "rotate" => Rotate(match v {
+                        "down" => Direction::Down,
+                        "left" => Direction::Left,
+                        "right" => Direction::Right,
+                        _ => panic!("Invalid value for rotate, use left right or down"),
+                    }),
                     "flip" => match v {
                         "v" => Flip(Orientation::Vertical),
                         "h" => Flip(Orientation::Horizontal),
-                        _ => {
-                            panic!("Invalid value for flip, use v or h");
-                        }
+                        _ => panic!("Invalid value for flip, use v or h"),
                     },
                     "unsharpen" => {
                         let unsharp_arguments: Vec<&str> = v.split(",").collect();

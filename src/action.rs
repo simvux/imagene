@@ -2,6 +2,7 @@ pub enum Action {
     Blur(f32),
     Brightness(i32),
     Contrast(f32),
+    Rotate(Direction),
     Unsharpen(f32, i32),
     Scale(u32, u32),
     Append(String),
@@ -11,6 +12,11 @@ pub enum Action {
 pub enum Orientation {
     Vertical,
     Horizontal,
+}
+pub enum Direction {
+    Down,
+    Left,
+    Right,
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]

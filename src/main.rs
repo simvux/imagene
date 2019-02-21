@@ -3,8 +3,7 @@ extern crate image;
 mod action;
 mod cli;
 use action::Action::*;
-use action::Flag;
-use action::Orientation;
+use action::{Direction, Flag, Orientation};
 use image::*;
 use std::collections::HashMap;
 use std::sync::mpsc;
@@ -38,6 +37,13 @@ fn main() {
             Brightness(b) => image = image.brighten(b),
             Blur(b) => image = image.blur(b),
             Unsharpen(sigma, threshold) => image = image.unsharpen(sigma, threshold),
+            Rotate(d) => {
+                image = match d {
+                    Direction::Right => image.rotate90(),
+                    Direction::Left => image.rotate270(),
+                    Direction::Down => image.rotate180(),
+                }
+            }
             Flip(orientation) => match orientation {
                 Orientation::Vertical => image = image.flipv(),
                 Orientation::Horizontal => image = image.fliph(),
