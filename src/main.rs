@@ -4,6 +4,7 @@ mod action;
 mod cli;
 use action::Action::*;
 use action::Flag;
+use action::Orientation;
 use image::*;
 use std::collections::HashMap;
 use std::sync::mpsc;
@@ -37,6 +38,10 @@ fn main() {
             Brightness(b) => image = image.brighten(b),
             Blur(b) => image = image.blur(b),
             Unsharpen(sigma, threshold) => image = image.unsharpen(sigma, threshold),
+            Flip(orientation) => match orientation {
+                Orientation::Vertical => image = image.flipv(),
+                Orientation::Horizontal => image = image.fliph(),
+            },
             Scale(w, h) => {
                 if w == 0 {
                     image = image.resize(100000000, h, Nearest);

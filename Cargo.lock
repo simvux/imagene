@@ -4,6 +4,7 @@
 name = "adler32"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
 [[package]]
 name = "ansi_term"
 version = "0.11.0"

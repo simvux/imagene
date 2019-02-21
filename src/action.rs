@@ -5,6 +5,12 @@ pub enum Action {
     Unsharpen(f32, i32),
     Scale(u32, u32),
     Append(String),
+    Flip(Orientation),
+}
+
+pub enum Orientation {
+    Vertical,
+    Horizontal,
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]

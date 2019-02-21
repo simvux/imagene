@@ -1,6 +1,6 @@
 use crate::action::Action;
 use crate::action::Action::*;
-use crate::action::Flag;
+use crate::action::{Flag, Orientation};
 use std::collections::HashMap;
 
 use colored::*;
@@ -86,6 +86,13 @@ Examples:
                             .parse::<f32>()
                             .expect(&format!("{}: Invalid value for {}", k, v)),
                     ),
+                    "flip" => match v {
+                        "v" => Flip(Orientation::Vertical),
+                        "h" => Flip(Orientation::Horizontal),
+                        _ => {
+                            panic!("Invalid value for flip, use v or h");
+                        }
+                    },
                     "unsharpen" => {
                         let unsharp_arguments: Vec<&str> = v.split(",").collect();
                         if unsharp_arguments.len() != 2 {
