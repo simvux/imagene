@@ -1,4 +1,5 @@
 pub enum Action {
+    Brightness(i32),
     Contrast(f32),
     Scale(u32, u32),
     Append(String),
