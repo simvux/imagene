@@ -3,6 +3,7 @@ mod cli;
 use action::Action::*;
 use action::{Direction, Flag, Orientation};
 use image::*;
+use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::sync::mpsc;
 
@@ -45,6 +46,7 @@ fn main() {
                     Direction::Right => image.rotate90(),
                     Direction::Left => image.rotate270(),
                     Direction::Down => image.rotate180(),
+                    Direction::Up => image,
                 }
             }
             Flip(orientation) => match orientation {
@@ -62,10 +64,10 @@ fn main() {
                 }
                 image = image.resize_exact(w, h, Nearest)
             }
-            Append(filename) => {
-                // The appendable image can either be source, an image that hasn't been
+            Append(filename, direction) => {
+                // The appendable image can either be same as source, an image that hasn't been
                 // initialized, or an already initialized one. This handles all 3 cases
-                let image_to_append;
+                let mut image_to_append;
                 if filename == io.0 {
                     image_to_append = image.clone();
                 } else {
@@ -78,53 +80,42 @@ fn main() {
                     image_to_append = extra_images.get_mut(&filename).unwrap().clone();
                 }
 
-                let (original_resized, resized_image) = if match settings.flags.get(&Flag::Shrink) {
-                    Some(f) => *f,
-                    None => false,
-                } {
-                    if image_to_append.height() > image.height() {
-                        (
-                            true,
-                            image.resize(std::u32::MAX, image_to_append.height(), Nearest),
-                        )
-                    } else {
-                        (
-                            false,
-                            image_to_append.resize(std::u32::MAX, image.height(), Nearest),
-                        )
-                    }
+                // Appended image inherits size of original image
+                let mut parent = if direction == Direction::Up || direction == Direction::Down {
+                    // Vertically append
+                    image_to_append = image_to_append.resize(image.width(), 100000000, Nearest);
+                    image::DynamicImage::new_rgba8(
+                        image.width(),
+                        image.height() + image_to_append.height(),
+                    )
                 } else {
-                    if image_to_append.height() > image.height() {
-                        (
-                            false,
-                            image_to_append.resize(std::u32::MAX, image.height(), Nearest),
-                        )
-                    } else {
-                        (
-                            true,
-                            image.resize(std::u32::MAX, image_to_append.height(), Nearest),
-                        )
-                    }
+                    // Horizontally append
+                    image_to_append = image_to_append.resize(100000000, image.height(), Nearest);
+                    image::DynamicImage::new_rgba8(
+                        image.width() + image_to_append.width(),
+                        image.height(),
+                    )
                 };
-                image = if original_resized {
-                    println!("if");
-                    let mut parent = image::DynamicImage::new_rgba8(
-                        resized_image.width() + image_to_append.width(),
-                        image.height(),
-                    );
-                    parent.copy_from(&resized_image, 0, 0);
-                    parent.copy_from(&image_to_append, resized_image.width(), 0);
-                    parent
-                } else {
-                    println!("else");
-                    let mut parent = image::DynamicImage::new_rgba8(
-                        image.width() + resized_image.width(),
-                        image.height(),
-                    );
-                    parent.copy_from(&image, 0, 0);
-                    parent.copy_from(&resized_image, image.width(), 0);
-                    parent
+
+                match direction {
+                    Direction::Up => {
+                        parent.copy_from(&image_to_append, 0, 0);
+                        parent.copy_from(&image, 0, image_to_append.height());
+                    }
+                    Direction::Down => {
+                        parent.copy_from(&image, 0, 0);
+                        parent.copy_from(&image_to_append, 0, image.height());
+                    }
+                    Direction::Left => {
+                        parent.copy_from(&image_to_append, 0, 0);
+                        parent.copy_from(&image, image_to_append.width(), 0);
+                    }
+                    Direction::Right => {
+                        parent.copy_from(&image, 0, 0);
+                        parent.copy_from(&image_to_append, image.width(), 0);
+                    }
                 }
+                image = parent;
             }
         };
     }

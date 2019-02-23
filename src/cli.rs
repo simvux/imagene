@@ -159,8 +159,20 @@ Examples:
                         )
                     }
                     "append" => {
-                        images.push(v.to_owned());
-                        Append(v.to_owned())
+                        let append_arguments: Vec<&str> = v.split(",").collect();
+                        images.push(append_arguments[0].to_owned());
+                        Append(
+                            append_arguments[0].to_owned(),
+                            match append_arguments[1] {
+                                "left" => Direction::Left,
+                                "right" => Direction::Right,
+                                "down" => Direction::Down,
+                                "under" => Direction::Down,
+                                "up" => Direction::Up,
+                                "over" => Direction::Up,
+                                _ => panic!("Second parameter invalid for append"),
+                            },
+                        )
                     }
                     &_ => {
                         println!("{}: action not found", k);
@@ -170,13 +182,8 @@ Examples:
             }
             Err(err) => {
                 // Flag based argument
-                match arg.as_ref() {
-                    "shrink" => {
-                        settings.flags.insert(Flag::Shrink, true);
-                    }
-                    "vertical" => {
-                        settings.flags.insert(Flag::Vertical, true);
-                    }
+                let name: &str = arg.as_ref();
+                match name {
                     &_ => {
                         println!("Unrecognized argument \"{}\"\n{}", arg, err);
                     }
