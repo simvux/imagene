@@ -3,6 +3,7 @@ use crate::action::Action::*;
 use crate::action::{Direction, Flag, Orientation};
 use image::ImageOutputFormat;
 use std::collections::HashMap;
+use std::process::exit;
 
 use colored::*;
 use std::env;
@@ -19,8 +20,7 @@ pub fn parse() -> ((String, String), Settings, Vec<String>) {
     };
     let args: Vec<String> = env::args().collect();
 
-    if &args[1] == "--help" || &args[1] == "-h" || &args[1] == "/h" || &args[1] == "help" {
-        println!(
+    let help_message = format!(
             "Syntax:
     {imagene} {o}infile{c} ...{o}flag{c}... ...{o}action{c}:{o}value{c}... {o}outfile{c}
 
@@ -34,6 +34,8 @@ Available Actions:
     resize:{o}int,int{c}           {comment} Resize an image, leave one of the ints empty to auto scale it
     crop:{o}int,int,int,int{c}     {comment} Crop an image (x,y,width,height)
     append:{o}string,left/under{c} {comment} Add another image next to source image
+    format:{o}string{c}            {comment} Specify output image format
+    format:{o}jpg{c},int           {comment} For JPG, also specify quality
 
 Available Flags:
 
@@ -57,7 +59,14 @@ Examples:
             o = "<".green(),
             c = ">".green()
         );
-        std::process::exit(0);
+
+    if args.len() <= 3 {
+        println!("{}", help_message);
+        exit(0);
+    }
+    if &args[1] == "--help" || &args[1] == "-h" || &args[1] == "/h" || &args[1] == "help" {
+        println!("{}", help_message);
+        exit(0);
     }
 
     let infile = &args[1];
@@ -76,30 +85,28 @@ Examples:
             Ok((k, v)) => {
                 // Key:Value based argument
                 settings.actions.push(match k {
-                    "contrast" => Contrast(
-                        v.to_owned()
-                            .parse::<f32>()
-                            .expect(&format!("{}: Invalid value for {}", k, v)),
-                    ),
-                    "brightness" => Brightness(
-                        v.to_owned()
-                            .parse::<i32>()
-                            .expect(&format!("{}: Invalid value for {}", k, v)),
-                    ),
-                    "blur" => Blur(
-                        v.to_owned()
-                            .parse::<f32>()
-                            .expect(&format!("{}: Invalid value for {}", k, v)),
-                    ),
+                    "contrast" => Contrast(v.to_owned().parse::<f32>().unwrap_or_else(|_| {
+                        eprintln!("{}: Invalid value for {}", k, v);
+                        exit(2)
+                    })),
+                    "brightness" => Brightness(v.to_owned().parse::<i32>().unwrap_or_else(|_| {
+                        eprintln!("{}: Invalid value for {}", k, v);
+                        exit(2)
+                    })),
+                    "blur" => Blur(v.to_owned().parse::<f32>().unwrap_or_else(|_| {
+                        eprintln!("{}: Invalid value for {}", k, v);
+                        exit(2)
+                    })),
                     "crop" => {
                         let crop_arguments: Vec<&str> = v.split(",").collect();
                         if crop_arguments.len() != 4 {
-                            panic!("Wrong amount of arguments for crop, i need \"x,y,w,h\"")
+                            eprintln!("Wrong amount of arguments for crop, i need \"x,y,w,h\"");
+                            exit(2);
                         }
                         let convert = |s: &str| {
-                            s.to_owned().parse::<u32>().expect(&format! {
-                                "{}: Invalid value for {}",
-                                s, k
+                            s.to_owned().parse::<u32>().unwrap_or_else(|_| {
+                                eprintln!("{}: Invalid value for {}", s, k);
+                                exit(2);
                             })
                         };
                         Crop(
@@ -113,22 +120,32 @@ Examples:
                         "down" => Direction::Down,
                         "left" => Direction::Left,
                         "right" => Direction::Right,
-                        _ => panic!("Invalid value for rotate, use left right or down"),
+                        _ => {
+                            eprintln!("Invalid value for rotate, use left right or down");
+                            exit(2)
+                        }
                     }),
                     "flip" => match v {
                         "v" => Flip(Orientation::Vertical),
                         "h" => Flip(Orientation::Horizontal),
-                        _ => panic!("Invalid value for flip, use v or h"),
+                        _ => {
+                            eprintln!("Invalid value for flip, use v or h");
+                            exit(2)
+                        }
                     },
                     "unsharpen" => {
                         let unsharp_arguments: Vec<&str> = v.split(",").collect();
                         if unsharp_arguments.len() != 2 {
-                            panic!("Wrong amount of arguments for unsharpen")
+                            {
+                                eprintln!("Wrong amount of arguments for unsharpen")
+                            };
+                            exit(2)
                         };
                         let convert = |s: &str| {
-                            s.to_owned()
-                                .parse::<f32>()
-                                .expect(&format!("{}: Invalid value for {}", s, k,))
+                            s.to_owned().parse::<f32>().unwrap_or_else(|_| {
+                                eprintln!("{}: Invalid value for {}", s, k,);
+                                exit(2)
+                            })
                         };
                         Unsharpen(
                             convert(unsharp_arguments[0]),
@@ -138,23 +155,24 @@ Examples:
                     "resize" => {
                         let resize_arguments: Vec<&str> = v.split(",").collect();
                         if resize_arguments.len() != 2 {
-                            panic!("Wrong amount of arguments for resize")
+                            eprintln!("Wrong amount of arguments for resize");
+                            exit(2);
                         };
                         Scale(
                             resize_arguments[0]
                                 .to_owned()
                                 .parse::<u32>()
-                                .expect(&format!(
-                                    "{}: Invalid value for {}",
-                                    resize_arguments[0], v,
-                                )),
+                                .unwrap_or_else(|_| {
+                                    eprintln!("{}: Invalid value for {}", resize_arguments[0], v,);
+                                    exit(2)
+                                }),
                             resize_arguments[1]
                                 .to_owned()
                                 .parse::<u32>()
-                                .expect(&format!(
-                                    "{}: Invalid value for {}",
-                                    resize_arguments[1], v,
-                                )),
+                                .unwrap_or_else(|_| {
+                                    eprintln!("{}: Invalid value for {}", resize_arguments[1], v,);
+                                    exit(2);
+                                }),
                         )
                     }
                     "append" => {
@@ -169,7 +187,10 @@ Examples:
                                 "under" => Direction::Down,
                                 "up" => Direction::Up,
                                 "over" => Direction::Up,
-                                _ => panic!("Second parameter invalid for append"),
+                                _ => {
+                                    eprintln!("Second parameter invalid for append");
+                                    exit(2)
+                                }
                             },
                         )
                     }
@@ -180,10 +201,13 @@ Examples:
                                 format_arguments[1]
                                     .to_owned()
                                     .parse::<u8>()
-                                    .expect(&format!(
-                                        "{}: Invalid format for {}",
-                                        format_arguments[1], format_arguments[0]
-                                    )),
+                                    .unwrap_or_else(|_| {
+                                        eprintln!(
+                                            "{}: Invalid format for {}",
+                                            format_arguments[1], format_arguments[0]
+                                        );
+                                        exit(2);
+                                    }),
                             ))
                         } else {
                             Format(match format_arguments[0] {
@@ -191,12 +215,16 @@ Examples:
                                 "gif" => ImageOutputFormat::GIF,
                                 "bmp" => ImageOutputFormat::BMP,
                                 "ico" => ImageOutputFormat::ICO,
-                                &_ => panic!("Invalid value for format"),
+                                &_ => {
+                                    eprintln!("Invalid value for format");
+                                    exit(2)
+                                }
                             })
                         }
                     }
                     &_ => {
-                        panic!("{}: action not found", k);
+                        eprintln!("{}: action not found", k);
+                        exit(2);
                     }
                 });
             }
@@ -205,7 +233,8 @@ Examples:
                 let name: &str = arg.as_ref();
                 match name {
                     &_ => {
-                        panic!("Unrecognized argument \"{}\"\n{}", arg, err);
+                        eprintln!("Unrecognized argument \"{}\"\n{}", arg, err);
+                        exit(2);
                     }
                 };
             }

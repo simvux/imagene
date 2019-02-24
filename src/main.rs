@@ -6,6 +6,7 @@ use image::*;
 use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::fs::File;
+use std::process::exit;
 use std::sync::mpsc;
 
 fn main() {
@@ -25,7 +26,10 @@ fn main() {
                     .map_err(|e| {
                         eprintln!("{}", e);
                     })
-                    .expect("Aborting because one or more errors while loading image"),
+                    .unwrap_or_else(|_| {
+                        eprintln!("Aborting because one or more errors while loading image");
+                        exit(2)
+                    }),
             )
             .unwrap();
         });
@@ -123,17 +127,24 @@ fn main() {
         };
     }
 
-    println!("{}", &io.1);
     match io.1.as_ref() {
         "stdout" => image
             .write_to(&mut std::io::stdout(), out_format)
-            .expect("Failed to save image"),
+            .unwrap_or_else(|e| {
+                eprintln!("Failed to save image: {}", e);
+                exit(2)
+            }),
         _ => image
             .write_to(
-                &mut File::create(&io.1).expect(&format!("Outfile {} not found", io.1)),
+                &mut File::create(&io.1).unwrap_or_else(|_| {
+                    eprintln!("Outfile {} not found", io.1);
+                    exit(2)
+                }),
                 out_format,
             )
-            .map_err(|e| println!("{}", e))
-            .expect("Failed to save image"), // image.save(&io.1).unwrap(),
+            .unwrap_or_else(|e| {
+                eprintln!("Failed to save image: {}", e);
+                exit(2)
+            }),
     }
 }
