@@ -1,10 +1,9 @@
 [package]
 name = "imagene"
 version = "0.1.0"
-authors = ["Simon <voidcrystal200@gmail.com>"]
+authors = ["Simon <simon.larsson-general@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
 image = "*"
-clap = "*"
 colored = "*"
