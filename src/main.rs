@@ -10,8 +10,6 @@ use std::sync::mpsc;
 fn main() {
     let (io, settings, image_names) = cli::parse();
 
-    // TODO: If you append the same image as source it'll error, i should check if already exists
-    // or something
     let mut images: HashMap<String, mpsc::Receiver<DynamicImage>> = HashMap::new();
     let mut extra_images: HashMap<String, DynamicImage> = HashMap::new();
     for image_name in image_names {
