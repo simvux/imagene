@@ -177,6 +177,10 @@ Examples:
                     }
                     "append" => {
                         let append_arguments: Vec<&str> = v.split(",").collect();
+                        if append_arguments.len() != 2 {
+                            eprintln!("Wrong amount of arguments for append");
+                            exit(2);
+                        };
                         images.push(append_arguments[0].to_owned());
                         Append(
                             append_arguments[0].to_owned(),
