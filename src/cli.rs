@@ -24,19 +24,17 @@ pub fn parse() -> ((String, String), Settings, Vec<String>) {
     {imagene} {o}infile{c} ...{o}flag{c}... ...{o}action{c}:{o}value{c}... {o}outfile{c}
 
 Available Actions:
-    brightness:{o}int{c}         {comment} Increase brightness by percent
-    contrast:{o}int{c}           {comment} Increase contrast by percent
-    blur:{o}float{c}             {comment} Add gaussian blur by sigma (recommended 1-20)
-    unsharpen:{o}float,int{c}    {comment} Add unsharpen mask with float being sigma and int being threshold
-    flip:{o}v/h{c}               {comment} Flip image v for vertically or h for horizontally
-    rotate:{o}left/right/down{c} {comment} Rotate an image by 90,180,270 degrees
-    resize:{o}int,int{c}         {comment} Resize an image, leave one of the ints empty to auto scale it
-    crop:{o}int,int,int,int{c}   {comment} Crop an image (x,y,width,height)
-    append:{o}string{c}          {comment} Add another image next to source image
+    brightness:{o}int{c}           {comment} Increase brightness by percent
+    contrast:{o}int{c}             {comment} Increase contrast by percent
+    blur:{o}float{c}               {comment} Add gaussian blur by sigma (recommended 1-20)
+    unsharpen:{o}float,int{c}      {comment} Add unsharpen mask with float being sigma and int being threshold
+    flip:{o}v/h{c}                 {comment} Flip image v for vertically or h for horizontally
+    rotate:{o}left/right/down{c}   {comment} Rotate an image by 90,180,270 degrees
+    resize:{o}int,int{c}           {comment} Resize an image, leave one of the ints empty to auto scale it
+    crop:{o}int,int,int,int{c}     {comment} Crop an image (x,y,width,height)
+    append:{o}string,left/under{c} {comment} Add another image next to source image
 
 Available Flags:
-    shrink            {comment} Appended images will inherit the height of the shortest
-    vertical          {comment} (NOT IMPLEMENTED) Appended images will append vertically
 
 Examples:
      {comment} Increases the contrast of the original image by 20% and adds an extra image next to it
@@ -45,8 +43,8 @@ Examples:
      {comment} Adds an extra image next to in_file.png and new image inherit height of the smallest
      {imagene} {infile} {shrink} append:extra_image.png {outfile}
 
-     {comment} Sets width to 2000 and automatically scales height to keep aspect ratio
-     {imagene} {infile} resize:2000,0 {outfile}
+     {comment} Set width to 2000, automatically scales height to keep aspect ratio and output to STDOUT
+     {imagene} {infile} resize:2000,0 stdout
 
      {comment} Overwrites an image with increased contrast
      {imagene} {infile} contrast:2 {infile} ",
