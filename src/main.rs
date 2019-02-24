@@ -5,6 +5,7 @@ use action::{Direction, Flag, Orientation};
 use image::*;
 use std::cmp::{max, min};
 use std::collections::HashMap;
+use std::fs::File;
 use std::sync::mpsc;
 
 fn main() {
@@ -22,7 +23,7 @@ fn main() {
             s.send(
                 image::open(&i_n)
                     .map_err(|e| {
-                        println!("{}", e);
+                        eprintln!("{}", e);
                     })
                     .expect("Aborting because one or more errors while loading image"),
             )
@@ -30,6 +31,9 @@ fn main() {
         });
         images.insert(image_name, r);
     }
+
+    // Saves as PNG by default, this gets overwritten by format action
+    let mut out_format = ImageOutputFormat::PNG;
 
     let mut image = images.get_mut(&io.0).unwrap().recv().unwrap();
     for action in settings.actions {
@@ -115,13 +119,21 @@ fn main() {
                 }
                 image = parent;
             }
+            Format(f) => out_format = f,
         };
     }
 
+    println!("{}", &io.1);
     match io.1.as_ref() {
         "stdout" => image
-            .write_to(&mut std::io::stdout(), ImageOutputFormat::PNG)
-            .unwrap(),
-        _ => image.save(&io.1).unwrap(),
+            .write_to(&mut std::io::stdout(), out_format)
+            .expect("Failed to save image"),
+        _ => image
+            .write_to(
+                &mut File::create(&io.1).expect(&format!("Outfile {} not found", io.1)),
+                out_format,
+            )
+            .map_err(|e| println!("{}", e))
+            .expect("Failed to save image"), // image.save(&io.1).unwrap(),
     }
 }

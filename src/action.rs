@@ -8,6 +8,7 @@ pub enum Action {
     Scale(u32, u32),
     Append(String, Direction),
     Flip(Orientation),
+    Format(image::ImageOutputFormat),
 }
 
 pub enum Orientation {

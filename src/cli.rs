@@ -1,6 +1,7 @@
 use crate::action::Action;
 use crate::action::Action::*;
 use crate::action::{Direction, Flag, Orientation};
+use image::ImageOutputFormat;
 use std::collections::HashMap;
 
 use colored::*;
@@ -172,9 +173,30 @@ Examples:
                             },
                         )
                     }
+                    "format" => {
+                        let format_arguments: Vec<&str> = v.split(",").collect();
+                        if format_arguments.len() == 2 {
+                            Format(ImageOutputFormat::JPEG(
+                                format_arguments[1]
+                                    .to_owned()
+                                    .parse::<u8>()
+                                    .expect(&format!(
+                                        "{}: Invalid format for {}",
+                                        format_arguments[1], format_arguments[0]
+                                    )),
+                            ))
+                        } else {
+                            Format(match format_arguments[0] {
+                                "png" => ImageOutputFormat::PNG,
+                                "gif" => ImageOutputFormat::GIF,
+                                "bmp" => ImageOutputFormat::BMP,
+                                "ico" => ImageOutputFormat::ICO,
+                                &_ => panic!("Invalid value for format"),
+                            })
+                        }
+                    }
                     &_ => {
-                        println!("{}: action not found", k);
-                        std::process::exit(1)
+                        panic!("{}: action not found", k);
                     }
                 });
             }
@@ -183,7 +205,7 @@ Examples:
                 let name: &str = arg.as_ref();
                 match name {
                     &_ => {
-                        println!("Unrecognized argument \"{}\"\n{}", arg, err);
+                        panic!("Unrecognized argument \"{}\"\n{}", arg, err);
                     }
                 };
             }
