@@ -35,7 +35,7 @@ Available Actions:
     crop:{o}int,int,int,int{c}     {comment} Crop an image (x,y,width,height)
     append:{o}string,left/under{c} {comment} Add another image next to source image
     format:{o}string{c}            {comment} Specify output image format
-    format:{o}jpg{c},int           {comment} For JPG, also specify quality
+    format:{o}jpg,int{c}           {comment} For JPG, also specify quality
 
 Available Flags:
 
@@ -43,16 +43,12 @@ Examples:
      {comment} Increases the contrast of the original image by 20% and adds an extra image next to it
      {imagene} {infile} contrast:20 append:extra_image.png {outfile}
 
-     {comment} Adds an extra image next to in_file.png and new image inherit height of the smallest
-     {imagene} {infile} {shrink} append:extra_image.png {outfile}
-
      {comment} Set width to 2000, automatically scales height to keep aspect ratio and output to STDOUT
      {imagene} {infile} resize:2000,0 stdout
 
      {comment} Overwrites an image with increased contrast
      {imagene} {infile} contrast:2 {infile} ",
             imagene = "imagene".green(),
-            shrink = "shrink".purple(),
             infile = "in_file.png".blue(),
             outfile = "out_file.png".blue(),
             comment = "->".blue(),
