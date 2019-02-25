@@ -38,8 +38,18 @@ fn main() {
         images.insert(image_name, r);
     }
 
-    // Saves as PNG by default, this gets overwritten by format action
-    let mut out_format = ImageOutputFormat::PNG;
+    // Use extension of outfile as default, can be overwritten with format: action
+    let outname = io.1.clone().to_owned();
+    let gutted_outname: Vec<&str> = outname.split(".").collect();
+    let mut out_format = match gutted_outname[gutted_outname.len() - 1] {
+        "png" => ImageOutputFormat::PNG,
+        "jpg" => ImageOutputFormat::JPEG(100),
+        "jpeg" => ImageOutputFormat::JPEG(100),
+        "bmp" => ImageOutputFormat::BMP,
+        "gif" => ImageOutputFormat::GIF,
+        "ico" => ImageOutputFormat::ICO,
+        &_ => ImageOutputFormat::PNG,
+    };
 
     let mut image = images.get_mut(&io.0).unwrap().recv().unwrap();
     for action in settings.actions {
