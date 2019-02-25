@@ -38,6 +38,7 @@ Available Actions:
     format:{o}jpg,int{c}           {comment} For JPG, also specify quality
 
 Available Flags:
+    lanczos3   {comment} Use a slower but possibly higher quality algorithm
 
 Examples:
      {comment} Increases the contrast of the original image by 20% and adds an extra image next to it
@@ -232,6 +233,7 @@ Examples:
                 // Flag based argument
                 let name: &str = arg.as_ref();
                 match name {
+                    "lanczos3" => settings.flags.insert(Flag::Lanczos3, true),
                     &_ => {
                         eprintln!("Unrecognized argument \"{}\"\n{}", arg, err);
                         exit(2);

@@ -25,4 +25,6 @@ pub enum Direction {
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
-pub enum Flag {}
+pub enum Flag {
+    Lanczos3,
+}

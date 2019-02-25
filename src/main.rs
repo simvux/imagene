@@ -1,8 +1,10 @@
 mod action;
 mod cli;
+mod misc;
 use action::Action::*;
 use action::{Direction, Flag, Orientation};
 use image::*;
+use misc::flag_is_enabled;
 use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::fs::File;
@@ -60,17 +62,30 @@ fn main() {
                 Orientation::Horizontal => image = image.fliph(),
             },
             Scale(w, h) => {
+                // Grab which algorithm to use from flag
+                let algorithm = if flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
+                    Lanczos3
+                } else {
+                    Nearest
+                };
                 if w == 0 {
-                    image = image.resize(100000000, h, Nearest);
+                    image = image.resize(100000000, h, algorithm);
                     continue;
                 }
                 if h == 0 {
-                    image = image.resize(w, 100000000, Nearest);
+                    image = image.resize(w, 100000000, algorithm);
                     continue;
                 }
-                image = image.resize_exact(w, h, Nearest)
+                image = image.resize_exact(w, h, algorithm)
             }
             Append(filename, direction) => {
+                // Grab which algorithm to use from flag
+                let algorithm = if flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
+                    Lanczos3
+                } else {
+                    Nearest
+                };
+
                 // The appendable image can either be same as source, an image that hasn't been
                 // initialized, or an already initialized one. This handles all 3 cases
                 let mut image_to_append;
@@ -89,14 +104,14 @@ fn main() {
                 // Appended image inherits size of original image
                 let mut parent = if direction == Direction::Up || direction == Direction::Down {
                     // Vertically append
-                    image_to_append = image_to_append.resize(image.width(), 100000000, Nearest);
+                    image_to_append = image_to_append.resize(image.width(), 100000000, algorithm);
                     image::DynamicImage::new_rgba8(
                         image.width(),
                         image.height() + image_to_append.height(),
                     )
                 } else {
                     // Horizontally append
-                    image_to_append = image_to_append.resize(100000000, image.height(), Nearest);
+                    image_to_append = image_to_append.resize(100000000, image.height(), algorithm);
                     image::DynamicImage::new_rgba8(
                         image.width() + image_to_append.width(),
                         image.height(),

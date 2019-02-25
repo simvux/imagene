@@ -30,6 +30,7 @@ Available Actions:
     format:<jpg,int>           -> For JPG, also specify quality
 
 Available Flags:
+    lanczos3   -> Use a slower but possibly higher quality algorithm
 
 Examples:
      -> Increases the contrast of the original image by 20% and adds an extra image next to it
