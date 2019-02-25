@@ -42,7 +42,7 @@ Available Flags:
 
 Examples:
      {comment} Increases the contrast of the original image by 20% and adds an extra image next to it
-     {imagene} {infile} contrast:20 append:extra_image.png {outfile}
+     {imagene} {infile} contrast:20 append:extra_image.png,left {outfile}
 
      {comment} Set width to 2000, automatically scales height to keep aspect ratio and output to STDOUT
      {imagene} {infile} resize:2000,0 stdout

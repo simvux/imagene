@@ -34,7 +34,7 @@ Available Flags:
 
 Examples:
      -> Increases the contrast of the original image by 20% and adds an extra image next to it
-     imagene in_file.png contrast:20 append:extra_image.png out_file.png
+     imagene in_file.png contrast:20 append:extra_image.png,left out_file.png
 
      -> Set width to 2000, automatically scales height to keep aspect ratio and output to STDOUT
      imagene in_file.png resize:2000,0 stdout
