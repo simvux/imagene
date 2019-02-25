@@ -256,3 +256,10 @@ fn split_kv(s: &str) -> Result<(&str, &str), String> {
         Ok((&split[0], &split[1]))
     }
 }
+
+pub fn flag_is_enabled(v: Option<&bool>) -> bool {
+    match v {
+        Some(flag) => *flag,
+        None => false,
+    }
+}

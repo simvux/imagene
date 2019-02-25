@@ -14,6 +14,7 @@ use std::sync::mpsc;
 fn main() {
     let (io, settings, image_names) = cli::parse();
 
+    // Load images
     let mut images: HashMap<String, mpsc::Receiver<DynamicImage>> = HashMap::new();
     let mut extra_images: HashMap<String, DynamicImage> = HashMap::new();
     for image_name in image_names {
@@ -55,10 +56,15 @@ fn main() {
     for action in settings.actions {
         match action {
             Contrast(c) => image = image.adjust_contrast(c),
+
             Brightness(b) => image = image.brighten(b),
+
             Blur(b) => image = image.blur(b),
+
             Unsharpen(sigma, threshold) => image = image.unsharpen(sigma, threshold),
+
             Crop(x, y, w, h) => image = image.crop(x, y, w, h),
+
             Rotate(d) => {
                 image = match d {
                     Direction::Right => image.rotate90(),
@@ -67,10 +73,12 @@ fn main() {
                     Direction::Up => image,
                 }
             }
+
             Flip(orientation) => match orientation {
                 Orientation::Vertical => image = image.flipv(),
                 Orientation::Horizontal => image = image.fliph(),
             },
+
             Scale(w, h) => {
                 // Grab which algorithm to use from flag
                 let algorithm = if flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
@@ -88,6 +96,7 @@ fn main() {
                 }
                 image = image.resize_exact(w, h, algorithm)
             }
+
             Append(filename, direction) => {
                 // Grab which algorithm to use from flag
                 let algorithm = if flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
