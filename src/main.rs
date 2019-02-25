@@ -1,10 +1,8 @@
 mod action;
 mod cli;
-mod misc;
 use action::Action::*;
 use action::{Direction, Flag, Orientation};
 use image::*;
-use misc::flag_is_enabled;
 use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::fs::File;
@@ -81,7 +79,7 @@ fn main() {
 
             Scale(w, h) => {
                 // Grab which algorithm to use from flag
-                let algorithm = if flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
+                let algorithm = if cli::flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
                     Lanczos3
                 } else {
                     Nearest
@@ -99,7 +97,7 @@ fn main() {
 
             Append(filename, direction) => {
                 // Grab which algorithm to use from flag
-                let algorithm = if flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
+                let algorithm = if cli::flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
                     Lanczos3
                 } else {
                     Nearest
