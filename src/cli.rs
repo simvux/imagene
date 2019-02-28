@@ -258,8 +258,5 @@ fn split_kv(s: &str) -> Result<(&str, &str), String> {
 }
 
 pub fn flag_is_enabled(v: Option<&bool>) -> bool {
-    match v {
-        Some(flag) => *flag,
-        None => false,
-    }
+    *v.unwrap_or(&false)
 }
