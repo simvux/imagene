@@ -85,11 +85,11 @@ fn main() {
                     Nearest
                 };
                 if w == 0 {
-                    image = image.resize(100000000, h, algorithm);
+                    image = image.resize(std::u32::MAX, h, algorithm);
                     continue;
                 }
                 if h == 0 {
-                    image = image.resize(w, 100000000, algorithm);
+                    image = image.resize(w, std::u32::MAX, algorithm);
                     continue;
                 }
                 image = image.resize_exact(w, h, algorithm)
