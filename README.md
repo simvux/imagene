@@ -21,6 +21,7 @@ Available Actions:
     contrast:<int>             -> Increase contrast by percent
     blur:<float>               -> Add gaussian blur by sigma (recommended 1-20)
     unsharpen:<float,int>      -> Add unsharpen mask with float being sigma and int being threshold
+    invert:<true/false>        -> Invert colors of image
     flip:<v/h>                 -> Flip image v for vertically or h for horizontally
     rotate:<left/right/down>   -> Rotate an image by 90,180,270 degrees
     resize:<int,int>           -> Resize an image, leave one of the ints empty to auto scale it
