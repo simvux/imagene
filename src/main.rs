@@ -2,10 +2,7 @@ extern crate image;
 
 mod action;
 mod cli;
-use action::Action::*;
-use action::{Direction, Flag, Orientation};
 use image::*;
-use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::fs::File;
 use std::process::exit;
@@ -16,7 +13,6 @@ fn main() {
 
     // Load images
     let mut images: HashMap<String, mpsc::Receiver<DynamicImage>> = HashMap::new();
-    let mut extra_images: HashMap<String, DynamicImage> = HashMap::new();
     for image_name in image_names {
         if images.contains_key(&image_name) {
             continue;
@@ -42,7 +38,7 @@ fn main() {
     // Use extension of outfile as default, can be overwritten with format: action
     let outname = io.1.clone().to_owned();
     let gutted_outname: Vec<&str> = outname.split(".").collect();
-    let mut out_format = match gutted_outname[gutted_outname.len() - 1] {
+    let out_format = match gutted_outname[gutted_outname.len() - 1] {
         "png" => ImageOutputFormat::PNG,
         "jpg" => ImageOutputFormat::JPEG(100),
         "jpeg" => ImageOutputFormat::JPEG(100),
@@ -52,116 +48,8 @@ fn main() {
         &_ => ImageOutputFormat::PNG,
     };
 
-    let mut image = images.get_mut(&io.0).unwrap().recv().unwrap();
-    for action in settings.actions {
-        match action {
-            Invert => image.invert(),
-
-            Contrast(c) => image = image.adjust_contrast(c),
-
-            Brightness(b) => image = image.brighten(b),
-
-            Blur(b) => image = image.blur(b),
-
-            Unsharpen(sigma, threshold) => image = image.unsharpen(sigma, threshold),
-
-            Crop(x, y, w, h) => image = image.crop(x, y, w, h),
-
-            Rotate(d) => {
-                image = match d {
-                    Direction::Right => image.rotate90(),
-                    Direction::Left => image.rotate270(),
-                    Direction::Down => image.rotate180(),
-                    Direction::Up => image,
-                }
-            }
-
-            Flip(orientation) => match orientation {
-                Orientation::Vertical => image = image.flipv(),
-                Orientation::Horizontal => image = image.fliph(),
-            },
-
-            Scale(w, h) => {
-                // Grab which algorithm to use from flag
-                let algorithm = if cli::flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
-                    Lanczos3
-                } else {
-                    Nearest
-                };
-                if w == 0 {
-                    image = image.resize(std::u32::MAX, h, algorithm);
-                    continue;
-                }
-                if h == 0 {
-                    image = image.resize(w, std::u32::MAX, algorithm);
-                    continue;
-                }
-                image = image.resize_exact(w, h, algorithm)
-            }
-
-            Append(filename, direction) => {
-                // Grab which algorithm to use from flag
-                let algorithm = if cli::flag_is_enabled(settings.flags.get(&Flag::Lanczos3)) {
-                    Lanczos3
-                } else {
-                    Nearest
-                };
-
-                // The appendable image can either be same as source, an image that hasn't been
-                // initialized, or an already initialized one. This handles all 3 cases
-                let mut image_to_append;
-                if filename == io.0 {
-                    image_to_append = image.clone();
-                } else {
-                    if !extra_images.contains_key(&filename) {
-                        extra_images.insert(
-                            filename.clone(),
-                            images.get_mut(&filename).unwrap().recv().unwrap(),
-                        );
-                    }
-                    image_to_append = extra_images.get_mut(&filename).unwrap().clone();
-                }
-
-                // Appended image inherits size of original image
-                let mut parent = if direction == Direction::Up || direction == Direction::Down {
-                    // Vertically append
-                    image_to_append = image_to_append.resize(image.width(), 100000000, algorithm);
-                    image::DynamicImage::new_rgba8(
-                        image.width(),
-                        image.height() + image_to_append.height(),
-                    )
-                } else {
-                    // Horizontally append
-                    image_to_append = image_to_append.resize(100000000, image.height(), algorithm);
-                    image::DynamicImage::new_rgba8(
-                        image.width() + image_to_append.width(),
-                        image.height(),
-                    )
-                };
-
-                match direction {
-                    Direction::Up => {
-                        parent.copy_from(&image_to_append, 0, 0);
-                        parent.copy_from(&image, 0, image_to_append.height());
-                    }
-                    Direction::Down => {
-                        parent.copy_from(&image, 0, 0);
-                        parent.copy_from(&image_to_append, 0, image.height());
-                    }
-                    Direction::Left => {
-                        parent.copy_from(&image_to_append, 0, 0);
-                        parent.copy_from(&image, image_to_append.width(), 0);
-                    }
-                    Direction::Right => {
-                        parent.copy_from(&image, 0, 0);
-                        parent.copy_from(&image_to_append, image.width(), 0);
-                    }
-                }
-                image = parent;
-            }
-            Format(f) => out_format = f,
-        };
-    }
+    let (image, out_format) =
+        action::apply_actions(&io.0, out_format, settings.actions, settings.flags, images);
 
     match io.1.as_ref() {
         "stdout" => image
