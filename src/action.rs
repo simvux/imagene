@@ -1,4 +1,5 @@
 pub enum Action {
+    Invert,
     Blur(f32),
     Brightness(i32),
     Contrast(f32),

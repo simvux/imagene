@@ -29,6 +29,7 @@ Available Actions:
     contrast:{o}int{c}             {comment} Increase contrast by percent
     blur:{o}float{c}               {comment} Add gaussian blur by sigma (recommended 1-20)
     unsharpen:{o}float,int{c}      {comment} Add unsharpen mask with float being sigma and int being threshold
+    invert:{o}true/false{c}        {comment} Invert colors of image
     flip:{o}v/h{c}                 {comment} Flip image v for vertically or h for horizontally
     rotate:{o}left/right/down{c}   {comment} Rotate an image by 90,180,270 degrees
     resize:{o}int,int{c}           {comment} Resize an image, leave one of the ints empty to auto scale it
@@ -82,6 +83,13 @@ Examples:
             Ok((k, v)) => {
                 // Key:Value based argument
                 settings.actions.push(match k {
+                    "invert" => {
+                        if v == "true" || v == "1" {
+                            Invert
+                        } else {
+                            continue;
+                        }
+                    }
                     "contrast" => Contrast(v.to_owned().parse::<f32>().unwrap_or_else(|_| {
                         eprintln!("{}: Invalid value for {}", k, v);
                         exit(2)

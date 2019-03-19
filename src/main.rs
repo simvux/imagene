@@ -1,3 +1,5 @@
+extern crate image;
+
 mod action;
 mod cli;
 use action::Action::*;
@@ -53,6 +55,8 @@ fn main() {
     let mut image = images.get_mut(&io.0).unwrap().recv().unwrap();
     for action in settings.actions {
         match action {
+            Invert => image.invert(),
+
             Contrast(c) => image = image.adjust_contrast(c),
 
             Brightness(b) => image = image.brighten(b),
