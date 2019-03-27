@@ -45,3 +45,11 @@ Examples:
      imagene in_file.png contrast:2 in_file.png
 
 ```
+
+## TODO:
+ * ~~An TODO list~~
+ * Write documentation and add examples
+ * Add more comments to cli.rs
+ * Improve transparency on *text* action
+ * Add *color* flag that can be used to convert between color modes
+ * Package for Void and Arch Linux
