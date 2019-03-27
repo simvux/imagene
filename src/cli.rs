@@ -35,6 +35,7 @@ Available Actions:
     resize:{o}int,int{c}           {comment} Resize an image, leave one of the ints empty to auto scale it
     crop:{o}int,int,int,int{c}     {comment} Crop an image (x,y,width,height)
     append:{o}string,left/under{c} {comment} Add another image next to source image
+    text:{o}string,(x:y),(r:g:b:a),(font:scale){c}   {comment} Add text onto an image, \"font\" is a path to .ttf file and values are floats
     format:{o}string{c}            {comment} Specify output image format
     format:{o}jpg,int{c}           {comment} For JPG, also specify quality
 
@@ -121,7 +122,7 @@ Examples:
                             convert(crop_arguments[3]),
                         )
                     }
-                    "rotate" => Rotate(match v {
+                    "rotate" => Rotate(match v.as_str() {
                         "down" => Direction::Down,
                         "left" => Direction::Left,
                         "right" => Direction::Right,
@@ -130,7 +131,7 @@ Examples:
                             exit(2)
                         }
                     }),
-                    "flip" => match v {
+                    "flip" => match v.as_str() {
                         "v" => Flip(Orientation::Vertical),
                         "h" => Flip(Orientation::Horizontal),
                         _ => {
@@ -231,6 +232,43 @@ Examples:
                             })
                         }
                     }
+                    "watermark" | "write" | "text" => {
+                        let text_arguments: Vec<&str> = v.split(",").collect();
+                        if text_arguments.len() != 4 {
+                            eprintln!("Wrong amount of arguments for {:?}", text_arguments);
+                            exit(2);
+                        };
+                        let content = text_arguments[0];
+                        let position = {
+                            let sub = sub_category_parse(text_arguments[1], 2).expect(
+                                &format!("Unexpected format for position of watermark/write/text. Expected (0.3 : 0.5), got {}", text_arguments[1]));
+                            let sub: Vec<f32> = sub.into_iter()
+                                .map(|s| s.parse()
+                                     .expect("Invalid value for position of watermark/write/text. Expected float"))
+                                .collect();
+                            (sub[0], sub[1])
+                        };
+                        let color_rgba = {
+                            let sub = sub_category_parse(text_arguments[2], 4).expect(
+                                &format!("Unexpected format for color of watermark/write/text. Expected (1.0 : 0.0 : 0.0 : 0.5), got {}", text_arguments[2]));
+                            let sub: Vec<f32> = sub.into_iter()
+                                .map(|s| s.parse()
+                                     .expect("Invalid value for position of watermark/write/text. Expected float"))
+                                .collect();
+                            (sub[0], sub[1], sub[2], sub[3])
+                        };
+                        let font = {
+                            let sub = sub_category_parse(text_arguments[3], 2).expect(
+                                &format!("Unexpected format for color of watermark/write/text. Expected (1.0 : 0.0 : 0.0 : 0.5), got {}", text_arguments[2]));
+                            (sub[0].to_owned(), sub[1].parse::<f32>().expect("Invalid value for position of watermark/write/text. expected float"))
+                        };
+                        Watermark(
+                            content.to_owned(),
+                            position,
+                            color_rgba,
+                            font,
+                        )
+                    }
                     &_ => {
                         eprintln!("{}: action not found", k);
                         exit(2);
@@ -254,15 +292,60 @@ Examples:
     ((infile.to_owned(), outfile.to_owned()), settings, images)
 }
 
-fn split_kv(s: &str) -> Result<(&str, &str), String> {
+fn split_kv(s: &str) -> Result<(&str, String), String> {
     let split: Vec<&str> = s.split(":").collect();
-    if split.len() != 2 {
+    if split.len() < 2 {
         let mut r = String::from("Parse error on argument: ");
         r.push_str(s);
         Err(r)
     } else {
-        Ok((&split[0], &split[1]))
+        let mut value = String::new();
+        for string in split[1..].into_iter() {
+            value.push_str(string);
+            value.push_str(":");
+        }
+        Ok((
+            &split[0],
+            if value.chars().last().unwrap() == ':' {
+                value[0..value.len() - 1].to_owned()
+            } else {
+                value
+            },
+        ))
     }
+}
+
+fn sub_category_parse(c: &str, args: usize) -> Result<Vec<String>, &str> {
+    let sub_category = escape(String::from(c));
+
+    let parsed: Vec<String> = sub_category
+        .replace("(", "")
+        .replace(")", "")
+        .replace(" ", "")
+        .split(":")
+        .map(|s| s.to_owned())
+        .collect();
+    if parsed.len() != args {
+        Err("Wrong amount of arguments")
+    } else {
+        Ok(parsed)
+    }
+}
+
+fn escape(c: String) -> String {
+    let split: Vec<&str> = c.split("\\").collect();
+    if split.len() == 1 {
+        return c;
+    };
+    split[1..]
+        .into_iter()
+        .map(|s| {
+            s.chars()
+                .next()
+                .map(|c| String::from(&s[c.len_utf8()..]))
+                .unwrap()
+        })
+        .collect()
 }
 
 pub fn flag_is_enabled(v: Option<&bool>) -> bool {

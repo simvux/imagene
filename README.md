@@ -17,18 +17,19 @@ Syntax:
     imagene <infile> ...<flag>... ...<action>:<value>... <outfile>
 
 Available Actions:
-    brightness:<int>           -> Increase brightness by percent
-    contrast:<int>             -> Increase contrast by percent
-    blur:<float>               -> Add gaussian blur by sigma (recommended 1-20)
-    unsharpen:<float,int>      -> Add unsharpen mask with float being sigma and int being threshold
-    invert:<true/false>        -> Invert colors of image
-    flip:<v/h>                 -> Flip image v for vertically or h for horizontally
-    rotate:<left/right/down>   -> Rotate an image by 90,180,270 degrees
-    resize:<int,int>           -> Resize an image, leave one of the ints empty to auto scale it
-    crop:<int,int,int,int>     -> Crop an image (x,y,width,height)
-    append:<string,left/under> -> Add another image next to source image
-    format:<string>            -> Specify output image format
-    format:<jpg,int>           -> For JPG, also specify quality
+    brightness:<int>             -> Increase brightness by percent
+    contrast:<int>               -> Increase contrast by percent
+    blur:<float>                 -> Add gaussian blur by sigma (recommended 1-20)
+    unsharpen:<float,int>        -> Add unsharpen mask with float being sigma and int being threshold
+    invert:<true/false>          -> Invert colors of image
+    flip:<v/h>                   -> Flip image v for vertically or h for horizontally
+    rotate:<left/right/down>     -> Rotate an image by 90,180,270 degrees
+    resize:<int,int>             -> Resize an image, leave one of the ints empty to auto scale it
+    crop:<int,int,int,int>       -> Crop an image (x,y,width,height)
+    append:<string,left/under>   -> Add another image next to source image
+    text:<string,(x:y),(r:g:b:a),(font,scale)>  -> Add text onto an image, where font is a path to .ttf file. All values are float
+    format:<string>              -> Specify output image format
+    format:<jpg,int>             -> For JPG, also specify quality
 
 Available Flags:
     lanczos3   -> Use a slower but possibly higher quality algorithm

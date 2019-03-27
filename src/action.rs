@@ -1,6 +1,11 @@
+extern crate image;
+extern crate imageproc;
+
 use crate::cli;
 use image::{DynamicImage, FilterType::*, GenericImage, GenericImageView, ImageOutputFormat};
 use std::{collections::HashMap, sync::mpsc};
+
+mod text;
 
 pub enum Action {
     Invert,
@@ -14,6 +19,7 @@ pub enum Action {
     Append(String, Direction),
     Flip(Orientation),
     Format(image::ImageOutputFormat),
+    Watermark(String, (f32, f32), (f32, f32, f32, f32), (String, f32)),
 }
 
 pub enum Orientation {
@@ -88,6 +94,22 @@ pub fn apply_actions(
                     continue;
                 }
                 image = image.resize_exact(w, h, algorithm)
+            }
+
+            Action::Watermark(text, (pos_x, pos_y), rgba, (font_name, font_size)) => {
+                image = text::draw(
+                    image,
+                    (
+                        (rgba.0 * 255.0) as u8,
+                        (rgba.1 * 255.0) as u8,
+                        (rgba.2 * 255.0) as u8,
+                        (rgba.3 * 255.0) as u8,
+                    ),
+                    &font_name,
+                    (pos_x, pos_y),
+                    font_size,
+                    &text,
+                );
             }
 
             Action::Append(filename, direction) => {
