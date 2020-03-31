@@ -5,7 +5,7 @@ authors = ["Simon <simon.larsson-general@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
-image = "*"
+image = "0.21.3"
 colored = "*"
-imageproc = "*"
+imageproc = "0.18.0"
 rusttype = "*"
